@@ -1,0 +1,27 @@
+here@media(max-width:600px){
+
+.grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.card img{
+
+height:210px;
+
+}
+
+header{
+
+flex-direction:column;
+
+}
+
+#search{
+
+width:100%;
+
+}
+
+}
