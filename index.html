@@ -3,54 +3,984 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع الأنمي</title>
-    <link rel="stylesheet" href="style.css">
+    <title>أنمي فليكس - مشاهدة الأنمي</title>
+
+    <!-- ========================================== -->
+    <!--                  CSS (UI/UX)                -->
+    <!-- ========================================== -->
+    <style>
+        /* خطوط احترافية */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+        /* متغيرات الألوان */
+        :root {
+            --bg-body: #0a0a0f;
+            --bg-secondary: #12121c;
+            --bg-card: rgba(26, 26, 46, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.06);
+            --neon-blue: #00d4ff;
+            --neon-pink: #ff2a75;
+            --neon-purple: #7a4bff;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b8;
+            --shadow-neon: 0 0 30px rgba(0, 212, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(122, 75, 255, 0.05) 0%, transparent 50%);
+        }
+
+        /* شريط التمرير المخصص */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+            border-radius: 10px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* ---------- الهيدر الزجاجي ---------- */
+        .glass-header {
+            background: rgba(18, 18, 28, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 15px;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+            cursor: pointer;
+        }
+        .logo span {
+            font-size: 30px;
+            -webkit-text-fill-color: initial;
+            color: #fff;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* الأزرار */
+        .btn {
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(255, 65, 108, 0.4);
+        }
+
+        /* ---------- الأقسام (الصفحات المخفية) ---------- */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ---------- بطاقات الأنمي (Grid) ---------- */
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .anime-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(5px);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        .anime-card:hover {
+            transform: translateY(-12px);
+            border-color: var(--neon-blue);
+            box-shadow: var(--shadow-neon);
+        }
+        .anime-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+        .anime-card:hover img {
+            transform: scale(1.05);
+        }
+        .anime-card h3 {
+            font-size: 18px;
+            margin: 15px 10px 5px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .anime-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 0 12px;
+            height: 40px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .anime-card .watch-btn {
+            margin-top: 12px;
+            padding: 8px 30px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--neon-pink), #ff6b81);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .anime-card .watch-btn:hover {
+            transform: scale(1.1);
+            letter-spacing: 1px;
+        }
+
+        /* ---------- حاويات الإعلانات ---------- */
+        .ad-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        .ad-container:hover {
+            border-color: var(--neon-blue);
+        }
+
+        /* ---------- صفحة المشاهدة ---------- */
+        .player-wrapper {
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border-glass);
+        }
+        .player-wrapper iframe {
+            width: 100%;
+            height: 550px;
+            border: none;
+            display: block;
+        }
+
+        .episodes-container {
+            margin-top: 30px;
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border-glass);
+        }
+        .episodes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .ep-chip {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 22px;
+            border-radius: 50px;
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .ep-chip:hover {
+            background: var(--neon-blue);
+            color: #000;
+            border-color: var(--neon-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+        }
+        .ep-chip.active {
+            background: var(--neon-pink);
+            color: #fff;
+            border-color: var(--neon-pink);
+        }
+
+        /* ---------- لوحة تحكم الأدمن ---------- */
+        .admin-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .admin-panel h2 {
+            font-size: 22px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--neon-blue);
+        }
+        .admin-panel input,
+        .admin-panel select,
+        .admin-panel textarea {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 16px;
+            transition: 0.3s;
+            outline: none;
+            margin-bottom: 15px;
+        }
+        .admin-panel input:focus,
+        .admin-panel select:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+        .admin-panel label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .admin-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 20px;
+            border-radius: 16px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--neon-blue);
+            transition: 0.2s;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .admin-item:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* ---------- صفحة تسجيل الدخول ---------- */
+        .login-box {
+            max-width: 450px;
+            margin: 80px auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-glass);
+            padding: 50px;
+            border-radius: 32px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .login-box input {
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            font-size: 16px;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+        .login-box input:focus {
+            border-color: var(--neon-pink);
+            outline: none;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--neon-pink), #ff6b81);
+            color: #fff;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .login-box button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(255, 42, 117, 0.3);
+        }
+
+        /* ---------- نظام الإشعارات (Toast) ---------- */
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            direction: rtl;
+        }
+        .toast {
+            padding: 16px 28px;
+            border-radius: 16px;
+            color: #fff;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.5s ease, fadeOut 0.5s 3s ease forwards;
+            border-left: 6px solid #fff;
+            min-width: 250px;
+        }
+        .toast.success {
+            background: rgba(0, 212, 255, 0.9);
+            border-color: #00d4ff;
+        }
+        .toast.error {
+            background: rgba(255, 65, 108, 0.9);
+            border-color: #ff416c;
+        }
+        .toast.info {
+            background: rgba(122, 75, 255, 0.9);
+            border-color: #7a4bff;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        /* ---------- التجاوب مع الجوال ---------- */
+        @media (max-width: 768px) {
+            .glass-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            .anime-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            .anime-card img {
+                height: 200px;
+            }
+            .player-wrapper iframe {
+                height: 250px;
+            }
+            .admin-panel {
+                padding: 20px;
+            }
+            .login-box {
+                padding: 30px 20px;
+                margin: 30px 10px;
+            }
+            .toast {
+                min-width: auto;
+                width: 90%;
+            }
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 16px;
+            height: 350px;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- ========================================== -->
+    <!--            حاوية الإشعارات                  -->
+    <!-- ========================================== -->
+    <div id="toast-container"></div>
+
+    <!-- ========================================== -->
+    <!--            التطبيق الرئيسي                  -->
+    <!-- ========================================== -->
     <div class="container">
-        <header>
-            <h1>🎬 موقع الأنمي</h1>
-            <div>
-                <a href="login.html" class="login-btn">🔐 دخول الأدمن</a>
+
+        <!-- ======== الهيدر الثابت ======== -->
+        <header class="glass-header">
+            <div class="logo" onclick="navigateTo('home')">🎬 <span>أنمي</span> فليكس</div>
+            <div class="header-actions" id="header-actions">
+                <!-- سيتم التحكم فيه عبر JavaScript -->
             </div>
         </header>
 
-        <!-- مساحة الإعلانات (الرئيسية) -->
-        <div class="ad-container">
-            <!-- 👇 ضع هنا كود إعلان Adsterra أو Google AdSense مثلاً -->
-            <span>🟡 إعلان 728x90 - ضع الكود هنا</span>
-        </div>
+        <!-- ========================================================= -->
+        <!--                    الصفحة الرئيسية (HOME)                   -->
+        <!-- ========================================================= -->
+        <section id="page-home" class="page-section active">
+            <!-- مساحة الإعلان الأعلى -->
+            <div class="ad-container">
+                🟡 إعلان 728x90 - ضع كود Adsterra أو Google AdSense هنا
+            </div>
 
-        <div id="anime-grid" class="grid">
-            <!-- سيتم عرض الأنميات بواسطة JavaScript -->
-            <p style="grid-column: span 4; text-align: center;">جاري تحميل الأنميات...</p>
-        </div>
+            <div id="anime-grid" class="anime-grid">
+                <!-- Skeleton Loading -->
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--                    صفحة المشاهدة (WATCH)                   -->
+        <!-- ========================================================= -->
+        <section id="page-watch" class="page-section">
+            <button class="btn" onclick="navigateTo('home')" style="margin-bottom:20px;">🏠 العودة للرئيسية</button>
+
+            <!-- إعلان أعلى المشغل -->
+            <div class="ad-container">
+                🟡 إعلان أعلى المشغل - ضع الكود هنا
+            </div>
+
+            <h2 id="watch-title" style="margin:15px 0; color:var(--neon-blue);">🎬 اسم الأنمي</h2>
+
+            <div class="player-wrapper" id="player-wrapper">
+                <iframe id="video-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+            </div>
+
+            <div class="episodes-container">
+                <h3>📺 قائمة الحلقات</h3>
+                <div id="episodes-list" class="episodes-grid">
+                    <p style="color:var(--text-secondary);">جاري تحميل الحلقات...</p>
+                </div>
+            </div>
+
+            <!-- إعلان أسفل المشغل -->
+            <div class="ad-container" style="margin-top:30px;">
+                🟡 إعلان أسفل المشغل - ضع الكود هنا
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--                    صفحة تسجيل الدخول (LOGIN)               -->
+        <!-- ========================================================= -->
+        <section id="page-login" class="page-section">
+            <div class="login-box">
+                <h2 style="margin-bottom:20px; color:var(--neon-pink);">🔐 دخول الأدمن</h2>
+                <div id="login-error" style="color:#ff6b6b; margin-bottom:10px;"></div>
+                <input type="email" id="login-email" placeholder="البريد الإلكتروني" value="admin@example.com">
+                <input type="password" id="login-password" placeholder="كلمة المرور" value="123456">
+                <button onclick="loginUser()">🚀 دخول</button>
+                <p style="margin-top:20px; color:var(--text-secondary); font-size:14px;">
+                    (أنشئ المستخدم في Firebase Console > Authentication)
+                </p>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--                    لوحة تحكم الأدمن (ADMIN)                -->
+        <!-- ========================================================= -->
+        <section id="page-admin" class="page-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+                <h2 style="color:var(--neon-blue);">⚙️ لوحة التحكم</h2>
+                <button class="btn btn-danger" onclick="logoutUser()">🚪 تسجيل خروج</button>
+            </div>
+
+            <!-- قسم إضافة أنمي -->
+            <div class="admin-panel">
+                <h2>➕ إضافة أنمي جديد</h2>
+                <input type="text" id="new-title" placeholder="اسم الأنمي (مثل: ون بيس)">
+                <input type="text" id="new-image" placeholder="رابط الصورة (URL)">
+                <input type="text" id="new-desc" placeholder="وصف مختصر (اختياري)">
+                <button class="btn btn-primary" onclick="addAnime()">💾 حفظ الأنمي</button>
+            </div>
+
+            <!-- قسم إضافة حلقة -->
+            <div class="admin-panel">
+                <h2>➕ إضافة حلقة جديدة</h2>
+                <select id="anime-select">
+                    <option value="">-- اختر الأنمي --</option>
+                </select>
+                <input type="number" id="ep-number" placeholder="رقم الحلقة (مثل: 1)">
+                <input type="text" id="ep-title" placeholder="عنوان الحلقة (اختياري)">
+                <input type="text" id="ep-url" placeholder="رابط الفيديو (YouTube أو مباشر)">
+                <button class="btn btn-primary" onclick="addEpisode()">💾 حفظ الحلقة</button>
+            </div>
+
+            <!-- عرض الأنميات مع زر حذف -->
+            <div class="admin-panel">
+                <h2>📋 قائمة الأنميات</h2>
+                <div id="admin-anime-list">
+                    <p style="color:var(--text-secondary);">جاري التحميل...</p>
+                </div>
+            </div>
+        </section>
+
     </div>
 
-    <script src="firebase-config.js"></script>
-    <script>
-        const grid = document.getElementById('anime-grid');
-
-        // قراءة جميع الأنميات من Firestore
-        db.collection('anime').orderBy('title').onSnapshot((snapshot) => {
-            grid.innerHTML = '';
-            if (snapshot.empty) {
-                grid.innerHTML = '<p style="grid-column: span 4; text-align: center;">🚫 لا توجد أنميات حالياً.</p>';
-                return;
-            }
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const id = doc.id;
-                grid.innerHTML += `
-                    <div class="card">
-                        <img src="${data.imageUrl || 'https://via.placeholder.com/200x260/16213e/e94560?text=No+Image'}" alt="${data.title}">
-                        <h3>${data.title}</h3>
-                        <p style="font-size:12px; color:#aaa; padding:0 10px;">${data.description || ''}</p>
-                        <a href="watch.html?id=${id}">▶️ مشاهدة</a>
-                    </div>
-                `;
-            });
-        });
+    <!-- ========================================== -->
+    <!--          FIREBASE + JAVASCRIPT              -->
+    <!-- ========================================== -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    </script>
+
+    <script>
+        // ==========================================================
+        //  1. تهيئة Firebase (استبدل بياناتك هنا)
+        // ==========================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_BUCKET.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // تمكين التخزين المؤقت
+        db.enablePersistence().catch(err => console.log(err));
+
+        // ==========================================================
+        //  2. نظام الإشعارات (Toast)
+        // ==========================================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
+        // ==========================================================
+        //  3. نظام التنقل بين الصفحات (Routing)
+        // ==========================================================
+        let currentAnimeId = null; // لحفظ معرف الأنمي في صفحة المشاهدة
+
+        function showPage(pageId) {
+            // إخفاء الكل
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            // إظهار المطلوب
+            const target = document.getElementById('page-' + pageId);
+            if (target) target.classList.add('active');
+
+            // تحديث الرابط (Hash)
+            if (pageId === 'home') window.location.hash = '#home';
+            else if (pageId === 'watch' && currentAnimeId) window.location.hash = `#watch/${currentAnimeId}`;
+            else if (pageId === 'login') window.location.hash = '#login';
+            else if (pageId === 'admin') window.location.hash = '#admin';
+        }
+
+        function navigateTo(page, animeId = null) {
+            if (page === 'watch' && animeId) {
+                currentAnimeId = animeId;
+                loadWatchPage(animeId);
+                showPage('watch');
+            } else if (page === 'home') {
+                showPage('home');
+            } else if (page === 'login') {
+                showPage('login');
+            } else if (page === 'admin') {
+                // تحقق من تسجيل الدخول قبل فتح الأدمن
+                if (!auth.currentUser) {
+                    showToast('⚠️ يرجى تسجيل الدخول أولاً', 'error');
+                    showPage('login');
+                    return;
+                }
+                showPage('admin');
+                loadAdminPanel();
+            }
+        }
+
+        // الاستماع لتغير الرابط (للتنقل عبر زر الرجوع)
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#watch/')) {
+                const id = hash.split('/')[1];
+                if (id) { currentAnimeId = id;
+                    loadWatchPage(id);
+                    showPage('watch'); }
+            } else if (hash === '#login') showPage('login');
+            else if (hash === '#admin') {
+                if (auth.currentUser) { showPage('admin');
+                    loadAdminPanel(); } else showPage('login');
+            } else showPage('home');
+        });
+
+        // ==========================================================
+        //  4. تحديث الهيدر (أزرار حسب حالة الدخول)
+        // ==========================================================
+        function updateHeader() {
+            const actions = document.getElementById('header-actions');
+            const user = auth.currentUser;
+            if (user) {
+                actions.innerHTML = `
+                    <button class="btn" onclick="navigateTo('home')">🏠 الرئيسية</button>
+                    <button class="btn btn-primary" onclick="navigateTo('admin')">⚙️ الأدمن</button>
+                    <button class="btn btn-danger" onclick="logoutUser()">🚪 خروج</button>
+                `;
+            } else {
+                actions.innerHTML = `
+                    <button class="btn" onclick="navigateTo('home')">🏠 الرئيسية</button>
+                    <button class="btn btn-primary" onclick="navigateTo('login')">🔐 دخول الأدمن</button>
+                `;
+            }
+        }
+
+        // مراقبة حالة تسجيل الدخول
+        auth.onAuthStateChanged(user => {
+            updateHeader();
+            // إذا كان المستخدم في صفحة الأدمن وخرج فجأة، ننقله للرئيسية
+            if (!user && document.getElementById('page-admin').classList.contains('active')) {
+                showPage('home');
+                showToast('تم تسجيل الخروج', 'info');
+            }
+        });
+
+        // ==========================================================
+        //  5. دالة تسجيل الخروج
+        // ==========================================================
+        function logoutUser() {
+            auth.signOut().then(() => {
+                showToast('تم تسجيل الخروج بنجاح', 'success');
+                navigateTo('home');
+            });
+        }
+
+        // ==========================================================
+        //  6. دالة تسجيل الدخول
+        // ==========================================================
+        function loginUser() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    showToast('✅ مرحباً أدمن!', 'success');
+                    navigateTo('admin');
+                })
+                .catch((error) => {
+                    errorEl.textContent = '❌ ' + error.message;
+                    showToast('❌ فشل الدخول: ' + error.message, 'error');
+                });
+        }
+
+        // ==========================================================
+        //  7. الصفحة الرئيسية (تحميل الأنميات)
+        // ==========================================================
+        function loadHomePage() {
+            const grid = document.getElementById('anime-grid');
+            // نضع الـ Skeleton مؤقتاً
+            grid.innerHTML = `
+                <div class="skeleton"></div><div class="skeleton"></div>
+                <div class="skeleton"></div><div class="skeleton"></div>
+                <div class="skeleton"></div><div class="skeleton"></div>
+            `;
+
+            db.collection('anime').orderBy('title').onSnapshot((snapshot) => {
+                grid.innerHTML = '';
+                if (snapshot.empty) {
+                    grid.innerHTML =
+                        '<p style="grid-column:span 4; text-align:center; color:var(--text-secondary);">🚫 لا توجد أنميات حالياً.</p>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    grid.innerHTML += `
+                        <div class="anime-card">
+                            <img src="${data.imageUrl || 'https://via.placeholder.com/200x260/16213e/e94560?text=No+Image'}" alt="${data.title}">
+                            <h3>${data.title}</h3>
+                            <p>${data.description || ''}</p>
+                            <button class="watch-btn" onclick="navigateTo('watch', '${id}')">▶️ مشاهدة</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // ==========================================================
+        //  8. صفحة المشاهدة (تحميل الحلقات)
+        // ==========================================================
+        function loadWatchPage(animeId) {
+            const titleEl = document.getElementById('watch-title');
+            const listEl = document.getElementById('episodes-list');
+            const iframe = document.getElementById('video-iframe');
+
+            // جلب اسم الأنمي
+            db.collection('anime').doc(animeId).get().then((doc) => {
+                if (doc.exists) titleEl.textContent = `🎬 ${doc.data().title}`;
+                else titleEl.textContent = '🎬 أنمي غير موجود';
+            });
+
+            // جلب الحلقات
+            listEl.innerHTML = '<p style="color:var(--text-secondary);">جاري تحميل الحلقات...</p>';
+            db.collection('anime').doc(animeId).collection('episodes').orderBy('epNum').onSnapshot((snapshot) => {
+                listEl.innerHTML = '';
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p style="color:var(--text-secondary);">🚫 لا توجد حلقات مضافة بعد.</p>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const epId = doc.id;
+                    listEl.innerHTML += `
+                        <div class="ep-chip" onclick="playVideo('${data.videoUrl}', 'الحلقة ${data.epNum}')">
+                            📺 ${data.epNum} ${data.title ? '- '+data.title : ''}
+                        </div>
+                    `;
+                });
+                // تشغيل أول حلقة تلقائياً
+                if (snapshot.docs.length > 0) {
+                    const first = snapshot.docs[0].data();
+                    playVideo(first.videoUrl, `الحلقة ${first.epNum}`);
+                }
+            });
+        }
+
+        // دالة تشغيل الفيديو
+        function playVideo(url, epName) {
+            const iframe = document.getElementById('video-iframe');
+            let embedUrl = url;
+            if (url.includes('watch?v=')) {
+                const videoId = url.split('v=')[1].split('&')[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            } else if (url.includes('youtu.be/')) {
+                const videoId = url.split('youtu.be/')[1].split('?')[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+            iframe.src = embedUrl;
+            // تحديث النص العلوي (اختياري)
+            document.getElementById('watch-title').innerHTML = `🎬 ${epName}`;
+        }
+
+        // ==========================================================
+        //  9. لوحة تحكم الأدمن
+        // ==========================================================
+        function loadAdminPanel() {
+            // تعبئة قائمة الـ Select بالأنميات
+            const select = document.getElementById('anime-select');
+            const listDiv = document.getElementById('admin-anime-list');
+
+            db.collection('anime').orderBy('title').onSnapshot((snapshot) => {
+                select.innerHTML = '<option value="">-- اختر الأنمي --</option>';
+                listDiv.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    select.innerHTML += `<option value="${id}">${data.title}</option>`;
+                    listDiv.innerHTML += `
+                        <div class="admin-item">
+                            <span><strong>${data.title}</strong> (${data.description || ''})</span>
+                            <button class="btn btn-danger" onclick="deleteAnime('${id}')">🗑️ حذف</button>
+                        </div>
+                    `;
+                });
+                if (snapshot.empty) listDiv.innerHTML =
+                '<p style="color:var(--text-secondary);">لا يوجد أنميات لعرضها.</p>';
+            });
+        }
+
+        // دالة إضافة أنمي
+        function addAnime() {
+            const title = document.getElementById('new-title').value.trim();
+            const imageUrl = document.getElementById('new-image').value.trim();
+            const description = document.getElementById('new-desc').value.trim();
+            if (!title) { showToast('⚠️ يرجى كتابة اسم الأنمي', 'error'); return; }
+
+            db.collection('anime').add({
+                title: title,
+                imageUrl: imageUrl || 'https://via.placeholder.com/200x260/16213e/e94560?text=No+Image',
+                description: description || ''
+            }).then(() => {
+                showToast('✅ تم إضافة الأنمي بنجاح!', 'success');
+                document.getElementById('new-title').value = '';
+                document.getElementById('new-image').value = '';
+                document.getElementById('new-desc').value = '';
+            }).catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
+        }
+
+        // دالة إضافة حلقة
+        function addEpisode() {
+            const animeId = document.getElementById('anime-select').value;
+            const epNum = parseInt(document.getElementById('ep-number').value);
+            const epTitle = document.getElementById('ep-title').value.trim();
+            const videoUrl = document.getElementById('ep-url').value.trim();
+
+            if (!animeId) { showToast('⚠️ اختر الأنمي أولاً', 'error'); return; }
+            if (!epNum || epNum <= 0) { showToast('⚠️ أدخل رقم حلقة صحيح', 'error'); return; }
+            if (!videoUrl) { showToast('⚠️ أدخل رابط الفيديو', 'error'); return; }
+
+            db.collection('anime').doc(animeId).collection('episodes').add({
+                epNum: epNum,
+                title: epTitle || `الحلقة ${epNum}`,
+                videoUrl: videoUrl
+            }).then(() => {
+                showToast('✅ تم إضافة الحلقة بنجاح!', 'success');
+                document.getElementById('ep-number').value = '';
+                document.getElementById('ep-title').value = '';
+                document.getElementById('ep-url').value = '';
+            }).catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
+        }
+
+        // دالة حذف الأنمي مع حلقاته
+        async function deleteAnime(animeId) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا الأنمي وجميع حلقاته؟')) return;
+            try {
+                const episodesSnap = await db.collection('anime').doc(animeId).collection('episodes').get();
+                const batch = db.batch();
+                episodesSnap.forEach(doc => { batch.delete(doc.ref); });
+                await batch.commit();
+                await db.collection('anime').doc(animeId).delete();
+                showToast('✅ تم الحذف بنجاح!', 'success');
+            } catch (error) {
+                showToast('❌ فشل الحذف: ' + error.message, 'error');
+            }
+        }
+
+        // ==========================================================
+        //  10. تشغيل التطبيق عند تحميل الصفحة
+        // ==========================================================
+        window.onload = function() {
+            // التحقق من الـ Hash في الرابط
+            const hash = window.location.hash;
+            if (hash.startsWith('#watch/')) {
+                const id = hash.split('/')[1];
+                if (id) { currentAnimeId = id;
+                    loadWatchPage(id);
+                    showPage('watch'); }
+            } else if (hash === '#login') showPage('login');
+            else if (hash === '#admin') {
+                if (auth.currentUser) { showPage('admin');
+                    loadAdminPanel(); } else showPage('login');
+            } else {
+                showPage('home');
+                loadHomePage();
+            }
+
+            // تحديث الهيدر
+            updateHeader();
+        };
+    </script>
+
 </body>
 </html>
