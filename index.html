@@ -629,38 +629,46 @@
     </div>
 
     <!-- ========================================== -->
-    <!--          FIREBASE + JAVASCRIPT              -->
+    <!--     FIREBASE (MODERN SDK v12) + جافا سكريبت -->
     <!-- ========================================== -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase-app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
+                "firebase-auth": "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js",
+                "firebase-firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js"
+            }
+        }
     </script>
 
-    <script>
-        // ==========================================================
-        //  1. تهيئة Firebase (استبدل بياناتك هنا)
-        // ==========================================================
+    <script type="module">
+        // ----------------------------------------------
+        // 1. استيراد Firebase الحديث (حسب كودك)
+        // ----------------------------------------------
+        import { initializeApp } from "firebase-app";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, getDoc, query, orderBy, writeBatch,
+            getDocs } from "firebase-firestore";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase-auth";
+
+        // بيانات التهيئة الخاصة بك (نسختها من كودك أنت)
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_BUCKET.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDfGLNhCwLr_gAxV9LRz0Ppm7Feb-iZYt4",
+            authDomain: "studio-1737295542-906cd.firebaseapp.com",
+            databaseURL: "https://studio-1737295542-906cd-default-rtdb.firebaseio.com",
+            projectId: "studio-1737295542-906cd",
+            storageBucket: "studio-1737295542-906cd.firebasestorage.app",
+            messagingSenderId: "986728437294",
+            appId: "1:986728437294:web:56e4bbd5ce2ff50448b1bf"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+        // تهيئة Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // تمكين التخزين المؤقت
-        db.enablePersistence().catch(err => console.log(err));
-
-        // ==========================================================
-        //  2. نظام الإشعارات (Toast)
-        // ==========================================================
+        // ----------------------------------------------
+        // 2. نظام الإشعارات (Toast)
+        // ----------------------------------------------
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -670,26 +678,23 @@
             setTimeout(() => { toast.remove(); }, 3500);
         }
 
-        // ==========================================================
-        //  3. نظام التنقل بين الصفحات (Routing)
-        // ==========================================================
-        let currentAnimeId = null; // لحفظ معرف الأنمي في صفحة المشاهدة
+        // ----------------------------------------------
+        // 3. نظام التنقل بين الصفحات (Routing)
+        // ----------------------------------------------
+        let currentAnimeId = null;
 
         function showPage(pageId) {
-            // إخفاء الكل
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            // إظهار المطلوب
             const target = document.getElementById('page-' + pageId);
             if (target) target.classList.add('active');
 
-            // تحديث الرابط (Hash)
             if (pageId === 'home') window.location.hash = '#home';
             else if (pageId === 'watch' && currentAnimeId) window.location.hash = `#watch/${currentAnimeId}`;
             else if (pageId === 'login') window.location.hash = '#login';
             else if (pageId === 'admin') window.location.hash = '#admin';
         }
 
-        function navigateTo(page, animeId = null) {
+        window.navigateTo = function(page, animeId = null) {
             if (page === 'watch' && animeId) {
                 currentAnimeId = animeId;
                 loadWatchPage(animeId);
@@ -699,7 +704,6 @@
             } else if (page === 'login') {
                 showPage('login');
             } else if (page === 'admin') {
-                // تحقق من تسجيل الدخول قبل فتح الأدمن
                 if (!auth.currentUser) {
                     showToast('⚠️ يرجى تسجيل الدخول أولاً', 'error');
                     showPage('login');
@@ -708,9 +712,8 @@
                 showPage('admin');
                 loadAdminPanel();
             }
-        }
+        };
 
-        // الاستماع لتغير الرابط (للتنقل عبر زر الرجوع)
         window.addEventListener('hashchange', () => {
             const hash = window.location.hash;
             if (hash.startsWith('#watch/')) {
@@ -725,9 +728,9 @@
             } else showPage('home');
         });
 
-        // ==========================================================
-        //  4. تحديث الهيدر (أزرار حسب حالة الدخول)
-        // ==========================================================
+        // ----------------------------------------------
+        // 4. تحديث الهيدر (حالة الدخول)
+        // ----------------------------------------------
         function updateHeader() {
             const actions = document.getElementById('header-actions');
             const user = auth.currentUser;
@@ -745,35 +748,30 @@
             }
         }
 
-        // مراقبة حالة تسجيل الدخول
-        auth.onAuthStateChanged(user => {
+        onAuthStateChanged(auth, user => {
             updateHeader();
-            // إذا كان المستخدم في صفحة الأدمن وخرج فجأة، ننقله للرئيسية
             if (!user && document.getElementById('page-admin').classList.contains('active')) {
                 showPage('home');
                 showToast('تم تسجيل الخروج', 'info');
             }
         });
 
-        // ==========================================================
-        //  5. دالة تسجيل الخروج
-        // ==========================================================
-        function logoutUser() {
-            auth.signOut().then(() => {
+        // ----------------------------------------------
+        // 5. تسجيل الخروج والدخول
+        // ----------------------------------------------
+        window.logoutUser = function() {
+            signOut(auth).then(() => {
                 showToast('تم تسجيل الخروج بنجاح', 'success');
                 navigateTo('home');
             });
-        }
+        };
 
-        // ==========================================================
-        //  6. دالة تسجيل الدخول
-        // ==========================================================
-        function loginUser() {
+        window.loginUser = function() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const errorEl = document.getElementById('login-error');
 
-            auth.signInWithEmailAndPassword(email, password)
+            signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
                     showToast('✅ مرحباً أدمن!', 'success');
                     navigateTo('admin');
@@ -782,21 +780,21 @@
                     errorEl.textContent = '❌ ' + error.message;
                     showToast('❌ فشل الدخول: ' + error.message, 'error');
                 });
-        }
+        };
 
-        // ==========================================================
-        //  7. الصفحة الرئيسية (تحميل الأنميات)
-        // ==========================================================
+        // ----------------------------------------------
+        // 6. الصفحة الرئيسية (تحميل الأنميات)
+        // ----------------------------------------------
         function loadHomePage() {
             const grid = document.getElementById('anime-grid');
-            // نضع الـ Skeleton مؤقتاً
             grid.innerHTML = `
                 <div class="skeleton"></div><div class="skeleton"></div>
                 <div class="skeleton"></div><div class="skeleton"></div>
                 <div class="skeleton"></div><div class="skeleton"></div>
             `;
 
-            db.collection('anime').orderBy('title').onSnapshot((snapshot) => {
+            const q = query(collection(db, 'anime'), orderBy('title'));
+            onSnapshot(q, (snapshot) => {
                 grid.innerHTML = '';
                 if (snapshot.empty) {
                     grid.innerHTML =
@@ -818,23 +816,25 @@
             });
         }
 
-        // ==========================================================
-        //  8. صفحة المشاهدة (تحميل الحلقات)
-        // ==========================================================
-        function loadWatchPage(animeId) {
+        // ----------------------------------------------
+        // 7. صفحة المشاهدة
+        // ----------------------------------------------
+        async function loadWatchPage(animeId) {
             const titleEl = document.getElementById('watch-title');
             const listEl = document.getElementById('episodes-list');
             const iframe = document.getElementById('video-iframe');
 
             // جلب اسم الأنمي
-            db.collection('anime').doc(animeId).get().then((doc) => {
-                if (doc.exists) titleEl.textContent = `🎬 ${doc.data().title}`;
-                else titleEl.textContent = '🎬 أنمي غير موجود';
-            });
+            const docSnap = await getDoc(doc(db, 'anime', animeId));
+            if (docSnap.exists()) titleEl.textContent = `🎬 ${docSnap.data().title}`;
+            else titleEl.textContent = '🎬 أنمي غير موجود';
 
             // جلب الحلقات
             listEl.innerHTML = '<p style="color:var(--text-secondary);">جاري تحميل الحلقات...</p>';
-            db.collection('anime').doc(animeId).collection('episodes').orderBy('epNum').onSnapshot((snapshot) => {
+            const episodesRef = collection(db, 'anime', animeId, 'episodes');
+            const q = query(episodesRef, orderBy('epNum'));
+
+            onSnapshot(q, (snapshot) => {
                 listEl.innerHTML = '';
                 if (snapshot.empty) {
                     listEl.innerHTML = '<p style="color:var(--text-secondary);">🚫 لا توجد حلقات مضافة بعد.</p>';
@@ -842,23 +842,20 @@
                 }
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    const epId = doc.id;
                     listEl.innerHTML += `
                         <div class="ep-chip" onclick="playVideo('${data.videoUrl}', 'الحلقة ${data.epNum}')">
                             📺 ${data.epNum} ${data.title ? '- '+data.title : ''}
                         </div>
                     `;
                 });
-                // تشغيل أول حلقة تلقائياً
                 if (snapshot.docs.length > 0) {
                     const first = snapshot.docs[0].data();
-                    playVideo(first.videoUrl, `الحلقة ${first.epNum}`);
+                    window.playVideo(first.videoUrl, `الحلقة ${first.epNum}`);
                 }
             });
         }
 
-        // دالة تشغيل الفيديو
-        function playVideo(url, epName) {
+        window.playVideo = function(url, epName) {
             const iframe = document.getElementById('video-iframe');
             let embedUrl = url;
             if (url.includes('watch?v=')) {
@@ -869,19 +866,18 @@
                 embedUrl = `https://www.youtube.com/embed/${videoId}`;
             }
             iframe.src = embedUrl;
-            // تحديث النص العلوي (اختياري)
             document.getElementById('watch-title').innerHTML = `🎬 ${epName}`;
-        }
+        };
 
-        // ==========================================================
-        //  9. لوحة تحكم الأدمن
-        // ==========================================================
+        // ----------------------------------------------
+        // 8. لوحة تحكم الأدمن
+        // ----------------------------------------------
         function loadAdminPanel() {
-            // تعبئة قائمة الـ Select بالأنميات
             const select = document.getElementById('anime-select');
             const listDiv = document.getElementById('admin-anime-list');
 
-            db.collection('anime').orderBy('title').onSnapshot((snapshot) => {
+            const q = query(collection(db, 'anime'), orderBy('title'));
+            onSnapshot(q, (snapshot) => {
                 select.innerHTML = '<option value="">-- اختر الأنمي --</option>';
                 listDiv.innerHTML = '';
                 snapshot.forEach((doc) => {
@@ -901,13 +897,13 @@
         }
 
         // دالة إضافة أنمي
-        function addAnime() {
+        window.addAnime = function() {
             const title = document.getElementById('new-title').value.trim();
             const imageUrl = document.getElementById('new-image').value.trim();
             const description = document.getElementById('new-desc').value.trim();
             if (!title) { showToast('⚠️ يرجى كتابة اسم الأنمي', 'error'); return; }
 
-            db.collection('anime').add({
+            addDoc(collection(db, 'anime'), {
                 title: title,
                 imageUrl: imageUrl || 'https://via.placeholder.com/200x260/16213e/e94560?text=No+Image',
                 description: description || ''
@@ -917,10 +913,10 @@
                 document.getElementById('new-image').value = '';
                 document.getElementById('new-desc').value = '';
             }).catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
-        }
+        };
 
         // دالة إضافة حلقة
-        function addEpisode() {
+        window.addEpisode = function() {
             const animeId = document.getElementById('anime-select').value;
             const epNum = parseInt(document.getElementById('ep-number').value);
             const epTitle = document.getElementById('ep-title').value.trim();
@@ -930,7 +926,7 @@
             if (!epNum || epNum <= 0) { showToast('⚠️ أدخل رقم حلقة صحيح', 'error'); return; }
             if (!videoUrl) { showToast('⚠️ أدخل رابط الفيديو', 'error'); return; }
 
-            db.collection('anime').doc(animeId).collection('episodes').add({
+            addDoc(collection(db, 'anime', animeId, 'episodes'), {
                 epNum: epNum,
                 title: epTitle || `الحلقة ${epNum}`,
                 videoUrl: videoUrl
@@ -940,28 +936,27 @@
                 document.getElementById('ep-title').value = '';
                 document.getElementById('ep-url').value = '';
             }).catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
-        }
+        };
 
-        // دالة حذف الأنمي مع حلقاته
-        async function deleteAnime(animeId) {
+        // دالة حذف الأنمي (مع حلقاته)
+        window.deleteAnime = async function(animeId) {
             if (!confirm('⚠️ هل أنت متأكد من حذف هذا الأنمي وجميع حلقاته؟')) return;
             try {
-                const episodesSnap = await db.collection('anime').doc(animeId).collection('episodes').get();
-                const batch = db.batch();
-                episodesSnap.forEach(doc => { batch.delete(doc.ref); });
+                const episodesSnap = await getDocs(collection(db, 'anime', animeId, 'episodes'));
+                const batch = writeBatch(db);
+                episodesSnap.forEach(docSnap => { batch.delete(docSnap.ref); });
                 await batch.commit();
-                await db.collection('anime').doc(animeId).delete();
+                await deleteDoc(doc(db, 'anime', animeId));
                 showToast('✅ تم الحذف بنجاح!', 'success');
             } catch (error) {
                 showToast('❌ فشل الحذف: ' + error.message, 'error');
             }
-        }
+        };
 
-        // ==========================================================
-        //  10. تشغيل التطبيق عند تحميل الصفحة
-        // ==========================================================
+        // ----------------------------------------------
+        // 9. تشغيل التطبيق
+        // ----------------------------------------------
         window.onload = function() {
-            // التحقق من الـ Hash في الرابط
             const hash = window.location.hash;
             if (hash.startsWith('#watch/')) {
                 const id = hash.split('/')[1];
@@ -976,10 +971,11 @@
                 showPage('home');
                 loadHomePage();
             }
-
-            // تحديث الهيدر
             updateHeader();
         };
+
+        // جعل الدوال الأساسية متاحة في النطاق العام لـ onclick
+        window.showToast = showToast;
     </script>
 
 </body>
