@@ -1,181 +1,1759 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة تحكم Anime Watcher</title>
-  
-  <!-- Cairo Font for beautiful Arabic typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Our Custom CSS Style -->
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Anime Watcher – لوحة التحكم</title>
+
+    <!-- Google Fonts (Arabic + English) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+               ROOT VARIABLES & RESET
+               ============================================================ */
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #12141c;
+            --bg-card: rgba(18, 20, 28, 0.75);
+            --bg-input: #1a1d2b;
+            --bg-hover: #22263a;
+
+            --text-primary: #f0f2f8;
+            --text-secondary: #8892b0;
+            --text-muted: #5a6488;
+
+            --accent: #f43f5e;
+            --accent-glow: rgba(244, 63, 94, 0.35);
+            --accent-dark: #be123c;
+            --accent-light: #fb7185;
+
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.25);
+
+            --border-color: #262b3e;
+            --border-light: #32374d;
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.55);
+            --shadow-glow: 0 8px 40px rgba(244, 63, 94, 0.20);
+
+            --transition: 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            --transition-smooth: 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+            --font-ar: 'Cairo', 'Segoe UI', sans-serif;
+            --font-en: 'Inter', 'Segoe UI', sans-serif;
+
+            --header-height: 68px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-ar);
+            direction: rtl;
+            line-height: 1.6;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-bottom: calc(20px + var(--safe-bottom));
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+               SCROLLBAR
+               ============================================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ============================================================
+               HEADER
+               ============================================================ */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 11, 16, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 16px;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            flex-shrink: 0;
+        }
+
+        .logo-text h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            background: linear-gradient(to left, #fff, #c8d0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            letter-spacing: -0.3px;
+        }
+        .logo-text small {
+            display: none;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            -webkit-text-fill-color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            font-family: var(--font-ar);
+            font-weight: 700;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all var(--transition);
+            font-size: 0.85rem;
+            padding: 0.55rem 1rem;
+            touch-action: manipulation;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 28px var(--accent-glow);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--success-glow);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px var(--success-glow);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--danger-glow);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px var(--danger-glow);
+        }
+
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.7rem;
+            min-height: 34px;
+            min-width: 34px;
+            border-radius: var(--radius-sm);
+        }
+
+        .btn-icon {
+            min-width: 44px;
+            padding: 0.55rem;
+            border-radius: 50%;
+        }
+
+        .btn .icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+               MAIN CONTAINER
+               ============================================================ */
+        .container {
+            max-width: 1340px;
+            margin: 0 auto;
+            padding: 16px 14px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ============================================================
+               STATS
+               ============================================================ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            backdrop-filter: blur(8px);
+            transition: all var(--transition);
+        }
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .stat-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            background: rgba(244, 63, 94, 0.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+        .stat-info .label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* ============================================================
+               SEARCH & FILTER
+               ============================================================ */
+        .toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toolbar-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-row .form-control {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .form-control {
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.7rem 1rem;
+            border-radius: var(--radius-md);
+            font-family: var(--font-ar);
+            font-size: 0.9rem;
+            transition: all var(--transition);
+            width: 100%;
+            outline: none;
+            min-height: 44px;
+        }
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.12);
+        }
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+        .form-control option {
+            background: var(--bg-secondary);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238892b0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            padding-left: 36px;
+            cursor: pointer;
+        }
+
+        /* ============================================================
+               ANIME GRID
+               ============================================================ */
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .section-head h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-head .count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            background: var(--bg-input);
+            padding: 2px 12px;
+            border-radius: 50px;
+        }
+
+        .anime-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            padding: 4px 0;
+        }
+
+        @media (min-width: 480px) {
+            .anime-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (min-width: 768px) {
+            .anime-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+        @media (min-width: 1024px) {
+            .anime-grid {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
+        }
+
+        /* --- Anime Card --- */
+        .anime-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: all var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+        }
+        .anime-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-glow);
+        }
+        .anime-card:active {
+            transform: scale(0.98);
+        }
+
+        .anime-card.active {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 2px var(--accent-glow), var(--shadow-glow) !important;
+            background: rgba(244, 63, 94, 0.04) !important;
+        }
+
+        .anime-card-cover {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            background: var(--bg-input);
+            transition: transform var(--transition-smooth);
+        }
+        .anime-card:hover .anime-card-cover {
+            transform: scale(1.03);
+        }
+
+        .anime-card-body {
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .anime-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .anime-card-category {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(244, 63, 94, 0.08);
+            padding: 1px 10px;
+            border-radius: 50px;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 50px;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .anime-card-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+
+        .anime-card-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+            min-height: 2.2rem;
+        }
+
+        .anime-card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding-top: 8px;
+            margin-top: 4px;
+            border-top: 1px solid var(--border-color);
+        }
+        .anime-card-meta strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .anime-card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .anime-card-actions .btn {
+            flex: 1;
+            min-width: 50px;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.5rem;
+            min-height: 32px;
+        }
+
+        /* ============================================================
+               EPISODE PANEL (Side Panel / Bottom Sheet)
+               ============================================================ */
+        .episode-panel {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 18px 16px 20px;
+            margin-top: 8px;
+            box-shadow: var(--shadow-card);
+            animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .episode-panel.open {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .episode-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        .episode-panel-header h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .episode-panel-header h3 span {
+            color: var(--accent-light);
+        }
+        .episode-panel-header .close-panel {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            min-height: 40px;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .episode-panel-header .close-panel:hover {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        /* Episode List */
+        .episodes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding-left: 4px;
+        }
+
+        .episode-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            transition: all var(--transition);
+        }
+        .episode-item:hover {
+            border-color: var(--accent);
+            background: rgba(244, 63, 94, 0.03);
+        }
+
+        .episode-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+        }
+        .episode-info .title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .episode-info .meta {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .episode-info .meta a {
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .episode-info .meta a:hover {
+            text-decoration: underline;
+        }
+
+        .episode-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .episode-actions .btn {
+            min-height: 30px;
+            min-width: 30px;
+            padding: 0 8px;
+            font-size: 0.65rem;
+        }
+
+        /* Episode Form */
+        .episode-form-wrap {
+            border-top: 1px solid var(--border-color);
+            padding-top: 14px;
+            margin-top: 4px;
+        }
+        .episode-form-wrap h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .episode-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .episode-form .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .episode-form .form-row .form-group {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+        }
+        .form-group label .required {
+            color: var(--danger);
+        }
+
+        .episode-form .btn-submit {
+            width: 100%;
+            padding: 0.7rem;
+            min-height: 48px;
+            font-size: 0.9rem;
+        }
+
+        /* ============================================================
+               MODAL
+               ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 580px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px 22px 28px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+            animation: modalIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+        .modal-header .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 8px;
+            transition: var(--transition);
+            min-height: 40px;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+        }
+        .modal-header .close-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-input);
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .modal-form .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .modal-form .form-row .form-group {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .modal-form textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+        .modal-actions .btn {
+            min-width: 100px;
+            padding: 0.7rem 1.4rem;
+        }
+
+        /* ============================================================
+               TOAST
+               ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: calc(20px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            width: 92%;
+            max-width: 420px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            pointer-events: auto;
+            animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            backdrop-filter: blur(12px);
+        }
+        .toast.exit {
+            animation: toastOut 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateY(20px) scale(0.96);
+            }
+        }
+
+        .toast .toast-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .toast .toast-msg {
+            font-size: 0.85rem;
+            font-weight: 600;
+            flex: 1;
+            color: var(--text-primary);
+        }
+        .toast .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: var(--transition);
+            min-height: 32px;
+            min-width: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .toast .toast-close:hover {
+            color: var(--text-primary);
+            background: var(--bg-input);
+        }
+
+        .toast-success .toast-icon {
+            color: var(--success);
+        }
+        .toast-error .toast-icon {
+            color: var(--danger);
+        }
+        .toast-info .toast-icon {
+            color: var(--accent-light);
+        }
+
+        /* ============================================================
+               EMPTY STATE
+               ============================================================ */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border: 1.5px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .empty-state .icon {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+        .empty-state p {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* ============================================================
+               RESPONSIVE TWEAKS
+               ============================================================ */
+        @media (min-width: 768px) {
+            .container {
+                padding: 24px 28px 100px;
+                gap: 28px;
+            }
+            header {
+                padding: 0 28px;
+            }
+            .logo-text small {
+                display: block;
+            }
+            .stats-row {
+                gap: 18px;
+            }
+            .stat-card {
+                padding: 18px 22px;
+            }
+            .stat-info .value {
+                font-size: 1.8rem;
+            }
+            .episode-panel {
+                padding: 24px 24px 28px;
+                border-radius: var(--radius-lg);
+            }
+            .episodes-list {
+                max-height: 420px;
+            }
+            .modal {
+                padding: 32px 32px 36px;
+            }
+            .toolbar {
+                flex-direction: row;
+                align-items: center;
+            }
+            .toolbar-row {
+                flex: 1;
+            }
+            .section-head h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                display: grid;
+                grid-template-columns: 1.4fr 0.9fr;
+                gap: 28px;
+                align-items: start;
+            }
+            .episode-panel {
+                position: sticky;
+                top: calc(var(--header-height) + 20px);
+                margin-top: 0;
+                max-height: calc(100vh - var(--header-height) - 60px);
+                overflow-y: auto;
+            }
+            .episode-panel .episodes-list {
+                max-height: 340px;
+            }
+            .stats-row {
+                grid-column: 1 / -1;
+            }
+            .toolbar {
+                grid-column: 1 / -1;
+            }
+            .anime-grid {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.7rem;
+                min-height: 38px;
+            }
+            .btn-sm {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.5rem;
+                min-height: 28px;
+            }
+            .anime-card-body {
+                padding: 10px 12px 12px;
+            }
+            .anime-card-title {
+                font-size: 0.85rem;
+            }
+            .anime-card-desc {
+                font-size: 0.7rem;
+                min-height: 1.8rem;
+            }
+            .modal {
+                padding: 18px 16px 22px;
+            }
+            .episode-item {
+                flex-wrap: wrap;
+            }
+            .episode-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, var(--bg-input) 25%, var(--bg-hover) 50%, var(--bg-input) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+        .flex-1 {
+            flex: 1;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+        .mt-2 {
+            margin-top: 8px;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+    </style>
 </head>
+
 <body>
 
-  <!-- Header Section -->
-  <header>
-    <div class="logo-container">
-      <div class="logo-icon">A</div>
-      <div class="logo-title">
-        <h1>لوحة تحكم Anime Watcher</h1>
-        <p>إدارة مسلسلات الأنمي والحلقات المرفوعة</p>
-      </div>
+    <!-- ============================================================
+    HEADER
+    ============================================================ -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">A</div>
+            <div class="logo-text">
+                <h1>Anime Watcher</h1>
+                <small>لوحة التحكم</small>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="btnAddAnime">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="hide-mobile">إضافة</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    MAIN
+    ============================================================ -->
+    <main class="container" id="app">
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon-wrap">🎬</div>
+                <div class="stat-info">
+                    <div class="value" id="totalAnime">0</div>
+                    <div class="label">إجمالي الأنميات</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrap">🎞️</div>
+                <div class="stat-info">
+                    <div class="value" id="totalEpisodes">0</div>
+                    <div class="label">إجمالي الحلقات</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-row">
+                <input type="text" id="searchInput" class="form-control" placeholder="🔍 بحث بالاسم، التصنيف أو الوصف..." />
+                <select id="filterStatus" class="form-control">
+                    <option value="all">📌 كل الحالات</option>
+                    <option value="مستمر">🔄 مستمر</option>
+                    <option value="مكتمل">✅ مكتمل</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Anime Grid -->
+        <div class="section-head">
+            <h2>📺 قائمة الأنمي <span class="count" id="gridCount">0</span></h2>
+        </div>
+        <div class="anime-grid" id="animeGrid">
+            <!-- rendered by JS -->
+        </div>
+
+        <!-- Episode Panel (hidden until anime selected) -->
+        <div class="episode-panel" id="episodePanel">
+            <div class="episode-panel-header">
+                <h3>📽️ حلقات <span id="selectedAnimeTitle">...</span></h3>
+                <button class="close-panel" id="closeEpisodePanel" aria-label="إغلاق">✕</button>
+            </div>
+
+            <div class="episodes-list" id="episodesList">
+                <!-- rendered by JS -->
+            </div>
+
+            <div class="episode-form-wrap">
+                <h4 id="episodeFormTitle">➕ إضافة حلقة جديدة</h4>
+                <form class="episode-form" id="episodeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>رقم الحلقة <span class="required">*</span></label>
+                            <input type="number" id="episodeNumber" class="form-control" placeholder="مثال 1" required min="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>العنوان (اختياري)</label>
+                            <input type="text" id="episodeTitle" class="form-control" placeholder="عنوان الحلقة" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>رابط الفيديو <span class="required">*</span></label>
+                        <input type="url" id="episodeVideo" class="form-control" placeholder="https://example.com/video.mp4" required />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>المدة (اختياري)</label>
+                            <input type="text" id="episodeDuration" class="form-control" placeholder="مثل 24:00" />
+                        </div>
+                        <div class="form-group" style="justify-content: flex-end;">
+                            <button type="submit" class="btn btn-success btn-submit" id="btnSaveEpisode">➕ إضافة الحلقة</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================
+    MODAL – Add / Edit Anime
+    ============================================================ -->
+    <div class="modal-overlay" id="animeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="animeModalTitle">إضافة أنمي جديد</h2>
+                <button class="close-btn" id="closeAnimeModal">✕</button>
+            </div>
+            <form class="modal-form" id="animeForm">
+                <div class="form-group">
+                    <label>اسم الأنمي <span class="required">*</span></label>
+                    <input type="text" id="animeTitle" class="form-control" placeholder="اسم الأنمي" required />
+                </div>
+                <div class="form-group">
+                    <label>الوصف <span class="required">*</span></label>
+                    <textarea id="animeDescription" class="form-control" rows="3" placeholder="قصة الأنمي ..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>رابط صورة الغلاف <span class="required">*</span></label>
+                    <input type="url" id="animeImage" class="form-control" placeholder="https://example.com/cover.jpg" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>التصنيف <span class="required">*</span></label>
+                        <input type="text" id="animeCategory" class="form-control" placeholder="أكشن، مغامرة" required />
+                    </div>
+                    <div class="form-group">
+                        <label>سنة الإنتاج</label>
+                        <input type="number" id="animeYear" class="form-control" placeholder="مثل 2024" />
+                    </div>
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select id="animeStatus" class="form-control">
+                            <option value="مستمر">🔄 مستمر</option>
+                            <option value="مكتمل">✅ مكتمل</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelAnimeModal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="submitAnimeBtn">💾 حفظ</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div>
-      <button class="btn btn-primary" onclick="openAddAnimeModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
-        </svg>إضافة أنمي جديد
-      </button>
-    </div>
-  </header>
 
-  <!-- Main Content Layout -->
-  <main class="dashboard-container">
-    
-    <!-- Right or Left Section depending on RTL - Main Directory -->
-    <section class="dashboard-section" style="grid-column: span 1;">
-      
-      <!-- Statistics Bar -->
-      <div class="stats-bar">
-        <div class="stat-card">
-          <div class="stat-icon">🎬</div>
-          <div class="stat-info">
-            <span class="stat-value" id="totalAnime">0</span>
-            <span class="stat-label">إجمالي الأنميات</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🎞️</div>
-          <div class="stat-info">
-            <span class="stat-value" id="totalEpisodes">0</span>
-            <span class="stat-label">إجمالي الحلقات</span>
-          </div>
-        </div>
-      </div>
+    <!-- ============================================================
+    TOAST CONTAINER
+    ============================================================ -->
+    <div class="toast-container" id="toastContainer"></div>
 
-      <!-- Search & Filters -->
-      <div class="search-bar-container">
-        <input type="text" id="searchInput" class="form-control" placeholder="البحث بالاسم، التصنيف أو الوصف..." style="flex: 1;">
-        <select id="filterStatus" class="form-control" style="width: 150px;">
-          <option value="all">كل الحالات</option>
-          <option value="مستمر">مستمر</option>
-          <option value="مكتمل">مكتمل</option>
-        </select>
-      </div>
+    <!-- ============================================================
+    FIREBASE (v8 compat)
+    ============================================================ -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js">
+    </script>
 
-      <!-- Anime Grid -->
-      <div class="section-header">
-        <h2 class="section-title">دليل مسلسلات الأنمي</h2>
-      </div>
-      <div class="anime-grid" id="animeGrid">
-        <!-- Live populated via JS -->
-      </div>
-    </section>
+    <!-- ============================================================
+    MAIN APP
+    ============================================================ -->
+    <script>
+        // ============================================================
+        // FIREBASE CONFIG & INIT
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfGLNhCwLr_gAxV9LRz0Ppm7Feb-iZYt4",
+            authDomain: "studio-1737295542-906cd.firebaseapp.com",
+            databaseURL: "https://studio-1737295542-906cd-default-rtdb.firebaseio.com",
+            projectId: "studio-1737295542-906cd"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-    <!-- Side Panel: Episode Management of Selected Anime -->
-    <section class="dashboard-section" id="episodePanel" style="display: none;">
-      <div class="section-header">
-        <h2 class="section-title">📺 حلقات: <span id="selectedAnimeTitle" style="color: var(--accent-color);">...</span></h2>
-      </div>
+        // ============================================================
+        // STATE
+        // ============================================================
+        let animesList = [];
+        let selectedAnimeId = null;
+        let editingAnimeId = null;
+        let editingEpisodeId = null;
 
-      <!-- List of existing episodes -->
-      <div class="episodes-list" id="episodesList">
-        <!-- Live populated via JS -->
-      </div>
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
 
-      <!-- Add/Edit Episode Form inside side-panel -->
-      <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1rem;">
-        <h3 id="episodeFormTitle" style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-primary);">إضافة حلقة جديدة</h3>
-        
-        <form id="episodeForm" style="display: flex; flex-direction: column; gap: 1rem;">
-          <div class="form-row">
-            <div class="form-group" style="flex: 1;">
-              <label for="episodeNumber">رقم الحلقة <span style="color: var(--danger-color);">*</span></label>
-              <input type="number" id="episodeNumber" class="form-control" placeholder="مثال: 1" required>
-            </div>
-            <div class="form-group" style="flex: 2;">
-              <label for="episodeTitle">عنوان الحلقة (اختياري)</label>
-              <input type="text" id="episodeTitle" class="form-control" placeholder="عنوان الحلقة الخاص">
-            </div>
-          </div>
+        const animeGrid = $('#animeGrid');
+        const searchInput = $('#searchInput');
+        const filterStatus = $('#filterStatus');
+        const totalAnime = $('#totalAnime');
+        const totalEpisodes = $('#totalEpisodes');
+        const gridCount = $('#gridCount');
 
-          <div class="form-group">
-            <label for="episodeVideo">رابط الفيديو (رابط تشغيل مباشر أو Firebase) <span style="color: var(--danger-color);">*</span></label>
-            <input type="url" id="episodeVideo" class="form-control" placeholder="https://..." required>
-          </div>
+        const episodePanel = $('#episodePanel');
+        const selectedAnimeTitle = $('#selectedAnimeTitle');
+        const episodesList = $('#episodesList');
+        const episodeFormTitle = $('#episodeFormTitle');
+        const btnSaveEpisode = $('#btnSaveEpisode');
+        const closeEpisodePanel = $('#closeEpisodePanel');
 
-          <div class="form-row" style="align-items: flex-end;">
-            <div class="form-group" style="flex: 1;">
-              <label for="episodeDuration">مدة الحلقة (اختياري)</label>
-              <input type="text" id="episodeDuration" class="form-control" placeholder="مثال: 24:00">
-            </div>
-            <div>
-              <button type="submit" class="btn btn-primary" id="btnSaveEpisode" style="width: 100%; justify-content: center;">إضافة الحلقة</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </section>
+        const animeModal = $('#animeModal');
+        const animeModalTitle = $('#animeModalTitle');
+        const animeForm = $('#animeForm');
+        const closeAnimeModalBtn = $('#closeAnimeModal');
+        const cancelAnimeModalBtn = $('#cancelAnimeModal');
+        const btnAddAnime = $('#btnAddAnime');
 
-  </main>
+        const toastContainer = $('#toastContainer');
 
-  <!-- Add/Edit Anime Modal Dialog -->
-  <div class="modal-overlay" id="animeModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeAnimeModal()">&times;</button>
-      <h2 id="animeModalTitle" style="font-size: 1.4rem; color: var(--text-primary);">إضافة أنمي جديد</h2>
-      
-      <form id="animeForm" style="display: flex; flex-direction: column; gap: 1.2rem;">
-        <div class="form-group">
-          <label for="animeTitle">اسم الأنمي <span style="color: var(--danger-color);">*</span></label>
-          <input type="text" id="animeTitle" class="form-control" placeholder="اسم الأنمي باللغة العربية أو الإنجليزية" required>
-        </div>
+        // ============================================================
+        // TOAST SYSTEM
+        // ============================================================
+        function showToast(message, type = 'info', duration = 3200) {
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                <span class="toast-msg">${message}</span>
+                <button class="toast-close" aria-label="إغلاق">✕</button>
+            `;
+            toastContainer.appendChild(toast);
 
-        <div class="form-group">
-          <label for="animeDescription">وصف الأنمي <span style="color: var(--danger-color);">*</span></label>
-          <textarea id="animeDescription" class="form-control" rows="3" placeholder="قصة الأنمي وتفاصيل قصيرة..." required></textarea>
-        </div>
+            const close = () => {
+                toast.classList.add('exit');
+                setTimeout(() => toast.remove(), 350);
+            };
 
-        <div class="form-group">
-          <label for="animeImage">رابط صورة الغلاف <span style="color: var(--danger-color);">*</span></label>
-          <input type="url" id="animeImage" class="form-control" placeholder="https://example.com/cover.jpg" required>
-        </div>
+            toast.querySelector('.toast-close').addEventListener('click', close);
+            setTimeout(close, duration);
 
-        <div class="form-row">
-          <div class="form-group" style="flex: 1;">
-            <label for="animeCategory">التصنيف <span style="color: var(--danger-color);">*</span></label>
-            <input type="text" id="animeCategory" class="form-control" placeholder="مثال: أكشن، مغامرة" required>
-          </div>
-          <div class="form-group" style="flex: 1;">
-            <label for="animeYear">سنة الإنتاج (اختياري)</label>
-            <input type="number" id="animeYear" class="form-control" placeholder="مثال: 2024">
-          </div>
-          <div class="form-group" style="flex: 1;">
-            <label for="animeStatus">حالة الأنمي</label>
-            <select id="animeStatus" class="form-control">
-              <option value="مستمر">مستمر</option>
-              <option value="مكتمل">مكتمل</option>
-            </select>
-          </div>
-        </div>
+            return toast;
+        }
 
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
-          <button type="button" class="btn btn-secondary" onclick="closeAnimeModal()">إلغاء</button>
-          <button type="submit" class="btn btn-primary">حفظ البيانات</button>
-        </div>
-      </form>
-    </div>
-  </div>
+        // ============================================================
+        // LOAD DATA
+        // ============================================================
+        function loadData() {
+            database.ref('Anime').on('value', (snap) => {
+                const data = snap.val();
+                animesList = [];
+                if (data) {
+                    Object.keys(data).forEach((id) => {
+                        animesList.push({ id, ...data[id] });
+                    });
+                }
+                updateStats();
+                filterAndRender();
+                if (selectedAnimeId) {
+                    selectAnime(selectedAnimeId);
+                } else {
+                    episodePanel.classList.remove('open');
+                }
+            }, (err) => {
+                console.error('Firebase error:', err);
+                showToast('⚠️ حدث خطأ في تحميل البيانات', 'error');
+            });
+        }
 
-  <!-- Firebase Scripts (v8 Compat SDK) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+        // ============================================================
+        // STATS
+        // ============================================================
+        function updateStats() {
+            totalAnime.textContent = animesList.length;
+            let eps = 0;
+            animesList.forEach((a) => {
+                if (a.episodes) eps += Object.keys(a.episodes).length;
+            });
+            totalEpisodes.textContent = eps;
+        }
 
-  <!-- Main JavaScript App Logic -->
-  <script src="app.js"></script>
+        // ============================================================
+        // FILTER & RENDER
+        // ============================================================
+        function filterAndRender() {
+            const q = searchInput.value.toLowerCase().trim();
+            const status = filterStatus.value;
+            const filtered = animesList.filter((a) => {
+                const matchSearch = a.title.toLowerCase().includes(q) ||
+                    (a.category && a.category.toLowerCase().includes(q)) ||
+                    (a.description && a.description.toLowerCase().includes(q));
+                const matchStatus = status === 'all' || a.status === status;
+                return matchSearch && matchStatus;
+            });
+            gridCount.textContent = filtered.length;
+            renderAnimeCards(filtered);
+        }
+
+        // ============================================================
+        // RENDER ANIME CARDS
+        // ============================================================
+        function renderAnimeCards(list) {
+            animeGrid.innerHTML = '';
+            if (!list.length) {
+                animeGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <p>لم يتم العثور على أي أنمي</p>
+                        <span style="font-size:0.8rem;color:var(--text-muted);">جرب تعديل كلمات البحث أو التصفية</span>
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach((anime) => {
+                const epCount = anime.episodes ? Object.keys(anime.episodes).length : 0;
+                const cover = anime.image || 'https://placehold.co/600x340/1a1d2b/8892b0?text=No+Cover';
+                const statusBadge = anime.status === 'مستمر' ?
+                    '<span class="badge badge-warning">مستمر</span>' :
+                    '<span class="badge badge-success">مكتمل</span>';
+
+                const card = document.createElement('div');
+                card.className = `anime-card ${selectedAnimeId === anime.id ? 'active' : ''}`;
+                card.innerHTML = `
+                    <img class="anime-card-cover" src="${cover}" alt="${anime.title}" loading="lazy"
+                         onerror="this.src='https://placehold.co/600x340/1a1d2b/8892b0?text=No+Image'" />
+                    <div class="anime-card-body">
+                        <div class="anime-card-top">
+                            <span class="anime-card-category">${anime.category || 'عام'}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="anime-card-title">${anime.title}</div>
+                        <div class="anime-card-desc">${anime.description || 'لا يوجد وصف'}</div>
+                        <div class="anime-card-meta">
+                            <span>📅 ${anime.year || 'غير محدد'}</span>
+                            <span>🎞️ <strong>${epCount}</strong> حلقة</span>
+                        </div>
+                        <div class="anime-card-actions">
+                            <button class="btn btn-primary btn-sm" data-action="episodes" data-id="${anime.id}">
+                                🎬 حلقات
+                            </button>
+                            <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${anime.id}">
+                                ✏️
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-action="delete" data-id="${anime.id}">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+                animeGrid.appendChild(card);
+
+                // Event delegation for card actions
+                card.querySelectorAll('[data-action]').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const id = btn.dataset.id;
+                        const action = btn.dataset.action;
+                        if (action === 'episodes') selectAnime(id);
+                        else if (action === 'edit') openEditAnimeModal(id);
+                        else if (action === 'delete') deleteAnime(id);
+                    });
+                });
+
+                // Click card to select episodes
+                card.addEventListener('click', () => {
+                    selectAnime(anime.id);
+                });
+            });
+        }
+
+        // ============================================================
+        // SELECT ANIME → Show Episode Panel
+        // ============================================================
+        function selectAnime(id) {
+            selectedAnimeId = id;
+            const anime = animesList.find((a) => a.id === id);
+            if (!anime) return;
+
+            selectedAnimeTitle.textContent = anime.title;
+            episodePanel.classList.add('open');
+            renderEpisodes(anime.episodes);
+            resetEpisodeForm();
+            filterAndRender(); // highlight active card
+
+            // scroll to panel on mobile
+            if (window.innerWidth < 1024) {
+                setTimeout(() => {
+                    episodePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            }
+        }
+
+        // ============================================================
+        // RENDER EPISODES
+        // ============================================================
+        function renderEpisodes(episodesObj) {
+            episodesList.innerHTML = '';
+            if (!episodesObj || !Object.keys(episodesObj).length) {
+                episodesList.innerHTML = `
+                    <div class="empty-state" style="padding:24px 16px;">
+                        <div class="icon">📭</div>
+                        <p style="font-size:0.85rem;">لا توجد حلقات مضافة بعد</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const list = Object.keys(episodesObj).map((id) => ({ id, ...episodesObj[id] }))
+                .sort((a, b) => Number(a.number) - Number(b.number));
+
+            list.forEach((ep) => {
+                const title = ep.title ? ` - ${ep.title}` : '';
+                const duration = ep.duration ? `⏱️ ${ep.duration}` : '';
+
+                const item = document.createElement('div');
+                item.className = 'episode-item';
+                item.innerHTML = `
+                    <div class="episode-info">
+                        <div class="title">🎞️ الحلقة ${ep.number}${title}</div>
+                        <div class="meta">
+                            ${duration}
+                            <span>🔗 <a href="${ep.video || '#'}" target="_blank" rel="noopener">رابط</a></span>
+                        </div>
+                    </div>
+                    <div class="episode-actions">
+                        <button class="btn btn-secondary btn-sm" data-ep-edit="${ep.id}">✏️</button>
+                        <button class="btn btn-danger btn-sm" data-ep-delete="${ep.id}">🗑️</button>
+                    </div>
+                `;
+                episodesList.appendChild(item);
+
+                item.querySelector('[data-ep-edit]').addEventListener('click', () => editEpisode(ep.id));
+                item.querySelector('[data-ep-delete]').addEventListener('click', () => deleteEpisode(ep.id));
+            });
+        }
+
+        // ============================================================
+        // EPISODE CRUD
+        // ============================================================
+        function resetEpisodeForm() {
+            editingEpisodeId = null;
+            episodeFormTitle.textContent = '➕ إضافة حلقة جديدة';
+            btnSaveEpisode.textContent = '➕ إضافة الحلقة';
+            document.getElementById('episodeForm').reset();
+            document.getElementById('episodeNumber').focus();
+        }
+
+        function handleEpisodeSubmit(e) {
+            e.preventDefault();
+            if (!selectedAnimeId) {
+                showToast('⚠️ يرجى اختيار أنمي أولاً', 'error');
+                return;
+            }
+
+            const number = document.getElementById('episodeNumber').value.trim();
+            const title = document.getElementById('episodeTitle').value.trim();
+            const video = document.getElementById('episodeVideo').value.trim();
+            const duration = document.getElementById('episodeDuration').value.trim();
+
+            if (!number || !video) {
+                showToast('⚠️ رقم الحلقة ورابط الفيديو إلزاميان', 'error');
+                return;
+            }
+
+            const data = { number, title, video, duration };
+            const ref = database.ref(`Anime/${selectedAnimeId}/episodes`);
+
+            if (editingEpisodeId) {
+                ref.child(editingEpisodeId).set(data)
+                    .then(() => {
+                        showToast('✅ تم تعديل الحلقة بنجاح', 'success');
+                        resetEpisodeForm();
+                    })
+                    .catch(() => showToast('⚠️ فشل تعديل الحلقة', 'error'));
+            } else {
+                ref.push(data)
+                    .then(() => {
+                        showToast('✅ تم إضافة الحلقة بنجاح', 'success');
+                        resetEpisodeForm();
+                    })
+                    .catch(() => showToast('⚠️ فشل إضافة الحلقة', 'error'));
+            }
+        }
+
+        function editEpisode(epId) {
+            if (!selectedAnimeId) return;
+            const anime = animesList.find((a) => a.id === selectedAnimeId);
+            if (!anime || !anime.episodes || !anime.episodes[epId]) return;
+
+            const ep = anime.episodes[epId];
+            editingEpisodeId = epId;
+            episodeFormTitle.textContent = `✏️ تعديل الحلقة ${ep.number}`;
+            btnSaveEpisode.textContent = '💾 حفظ التعديل';
+
+            document.getElementById('episodeNumber').value = ep.number || '';
+            document.getElementById('episodeTitle').value = ep.title || '';
+            document.getElementById('episodeVideo').value = ep.video || '';
+            document.getElementById('episodeDuration').value = ep.duration || '';
+        }
+
+        function deleteEpisode(epId) {
+            if (!confirm('🗑️ هل أنت متأكد من حذف هذه الحلقة؟')) return;
+            database.ref(`Anime/${selectedAnimeId}/episodes/${epId}`).remove()
+                .then(() => showToast('🗑️ تم حذف الحلقة', 'info'))
+                .catch(() => showToast('⚠️ فشل حذف الحلقة', 'error'));
+        }
+
+        // ============================================================
+        // ANIME CRUD
+        // ============================================================
+        function openAddAnimeModal() {
+            editingAnimeId = null;
+            animeModalTitle.textContent = '➕ إضافة أنمي جديد';
+            animeForm.reset();
+            document.getElementById('animeStatus').value = 'مستمر';
+            animeModal.classList.add('open');
+        }
+
+        function openEditAnimeModal(id) {
+            const anime = animesList.find((a) => a.id === id);
+            if (!anime) return;
+            editingAnimeId = id;
+            animeModalTitle.textContent = '✏️ تعديل بيانات الأنمي';
+            document.getElementById('animeTitle').value = anime.title || '';
+            document.getElementById('animeDescription').value = anime.description || '';
+            document.getElementById('animeImage').value = anime.image || '';
+            document.getElementById('animeCategory').value = anime.category || '';
+            document.getElementById('animeYear').value = anime.year || '';
+            document.getElementById('animeStatus').value = anime.status || 'مستمر';
+            animeModal.classList.add('open');
+        }
+
+        function closeAnimeModal() {
+            animeModal.classList.remove('open');
+        }
+
+        function handleAnimeSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('animeTitle').value.trim();
+            const description = document.getElementById('animeDescription').value.trim();
+            const image = document.getElementById('animeImage').value.trim();
+            const category = document.getElementById('animeCategory').value.trim();
+            const year = document.getElementById('animeYear').value.trim();
+            const status = document.getElementById('animeStatus').value;
+
+            if (!title || !description || !image || !category) {
+                showToast('⚠️ جميع الحقول الإلزامية مطلوبة', 'error');
+                return;
+            }
+
+            const data = { title, description, image, category, year, status };
+
+            if (editingAnimeId) {
+                const existing = animesList.find((a) => a.id === editingAnimeId);
+                if (existing && existing.episodes) data.episodes = existing.episodes;
+
+                database.ref('Anime/' + editingAnimeId).set(data)
+                    .then(() => {
+                        showToast('✅ تم تحديث الأنمي', 'success');
+                        closeAnimeModal();
+                    })
+                    .catch(() => showToast('⚠️ فشل تحديث الأنمي', 'error'));
+            } else {
+                database.ref('Anime').push(data)
+                    .then(() => {
+                        showToast('✅ تم إضافة الأنمي', 'success');
+                        closeAnimeModal();
+                    })
+                    .catch(() => showToast('⚠️ فشل إضافة الأنمي', 'error'));
+            }
+        }
+
+        function deleteAnime(id) {
+            if (!confirm('🗑️ هل أنت متأكد من حذف هذا الأنمي وجميع حلقاته؟')) return;
+            database.ref('Anime/' + id).remove()
+                .then(() => {
+                    if (selectedAnimeId === id) {
+                        selectedAnimeId = null;
+                        episodePanel.classList.remove('open');
+                    }
+                    showToast('🗑️ تم حذف الأنمي', 'info');
+                })
+                .catch(() => showToast('⚠️ فشل حذف الأنمي', 'error'));
+        }
+
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+        function setupListeners() {
+            searchInput.addEventListener('input', filterAndRender);
+            filterStatus.addEventListener('change', filterAndRender);
+
+            animeForm.addEventListener('submit', handleAnimeSubmit);
+            document.getElementById('episodeForm').addEventListener('submit', handleEpisodeSubmit);
+
+            btnAddAnime.addEventListener('click', openAddAnimeModal);
+            closeAnimeModalBtn.addEventListener('click', closeAnimeModal);
+            cancelAnimeModalBtn.addEventListener('click', closeAnimeModal);
+            animeModal.addEventListener('click', (e) => {
+                if (e.target === animeModal) closeAnimeModal();
+            });
+
+            closeEpisodePanel.addEventListener('click', () => {
+                episodePanel.classList.remove('open');
+                selectedAnimeId = null;
+                filterAndRender();
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (animeModal.classList.contains('open')) closeAnimeModal();
+                }
+            });
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            setupListeners();
+            loadData();
+        });
+
+        // Expose functions to global for inline onclick compatibility
+        window.selectAnime = selectAnime;
+        window.openAddAnimeModal = openAddAnimeModal;
+        window.openEditAnimeModal = openEditAnimeModal;
+        window.deleteAnime = deleteAnime;
+        window.editEpisode = editEpisode;
+        window.deleteEpisode = deleteEpisode;
+        window.closeAnimeModal = closeAnimeModal;
+    </script>
+
 </body>
 </html>
