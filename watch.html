@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهدة الأنمي</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="anime-title">🎬 الحلقات</h1>
+            <a href="index.html" class="login-btn">🏠 العودة للرئيسية</a>
+        </header>
+
+        <!-- مساحة إعلان أعلى الفيديو -->
+        <div class="ad-container">
+            <span>🟡 إعلان أعلى المشغل - ضع الكود هنا</span>
+        </div>
+
+        <div id="player-area">
+            <p style="text-align:center;">اختر حلقة من الأسفل لتشغيلها</p>
+        </div>
+
+        <div id="episodes-list" class="ep-list">
+            <p>جاري تحميل الحلقات...</p>
+        </div>
+
+        <!-- مساحة إعلان أسفل الفيديو -->
+        <div class="ad-container" style="margin-top:30px;">
+            <span>🟡 إعلان أسفل المشغل - ضع الكود هنا</span>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const animeId = urlParams.get('id');
+        const titleEl = document.getElementById('anime-title');
+        const playerArea = document.getElementById('player-area');
+        const epList = document.getElementById('episodes-list');
+
+        if (!animeId) {
+            epList.innerHTML = '<p>❌ لم يتم تحديد الأنمي.</p>';
+        } else {
+            // جلب اسم الأنمي
+            db.collection('anime').doc(animeId).get().then((doc) => {
+                if (doc.exists) titleEl.textContent = `🎬 ${doc.data().title}`;
+            });
+
+            // الاستماع إلى الحلقات
+            db.collection('anime').doc(animeId).collection('episodes').orderBy('epNum').onSnapshot((snapshot) => {
+                epList.innerHTML = '';
+                if (snapshot.empty) {
+                    epList.innerHTML = '<p>🚫 لا توجد حلقات مضافة بعد.</p>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    epList.innerHTML += `
+                        <div class="ep-item" style="cursor:pointer;" onclick="playVideo('${data.videoUrl}', 'الحلقة ${data.epNum}')">
+                            📺 الحلقة ${data.epNum} ${data.title ? '- '+data.title : ''}
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // دالة تشغيل الفيديو في مشغل YouTube أو أي رابط
+        function playVideo(url, epName) {
+            let embedUrl = url;
+            // تحويل رابط اليوتيوب إلى صيغة التضمين (Embed) إذا كان عادياً
+            if (url.includes('watch?v=')) {
+                const videoId = url.split('v=')[1].split('&')[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            } else if (url.includes('youtu.be/')) {
+                const videoId = url.split('youtu.be/')[1].split('?')[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+            
+            playerArea.innerHTML = `
+                <h3 style="margin:15px 0;">▶️ ${epName}</h3>
+                <div class="video-container">
+                    <iframe src="${embedUrl}" allowfullscreen></iframe>
+                </div>
+            `;
+            // التمرير إلى المشغل تلقائياً
+            playerArea.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
