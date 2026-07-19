@@ -1,60 +1,56 @@
-here<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Anime Hub</title>
-
-<link rel="stylesheet" href="css/style.css">
-
-<link rel="stylesheet" href="css/mobile.css">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع الأنمي</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <h1>🎬 موقع الأنمي</h1>
+            <div>
+                <a href="login.html" class="login-btn">🔐 دخول الأدمن</a>
+            </div>
+        </header>
 
-<header>
+        <!-- مساحة الإعلانات (الرئيسية) -->
+        <div class="ad-container">
+            <!-- 👇 ضع هنا كود إعلان Adsterra أو Google AdSense مثلاً -->
+            <span>🟡 إعلان 728x90 - ضع الكود هنا</span>
+        </div>
 
-<div class="logo">
+        <div id="anime-grid" class="grid">
+            <!-- سيتم عرض الأنميات بواسطة JavaScript -->
+            <p style="grid-column: span 4; text-align: center;">جاري تحميل الأنميات...</p>
+        </div>
+    </div>
 
-AnimeHub
+    <script src="firebase-config.js"></script>
+    <script>
+        const grid = document.getElementById('anime-grid');
 
-</div>
-
-<input id="search" type="text" placeholder="ابحث عن عمل...">
-
-</header>
-
-<main>
-
-<div id="animeList" class="grid">
-
-</div>
-
-</main>
-
-<nav class="bottom">
-
-<a href="#">🏠</a>
-
-<a href="#">🔥</a>
-
-<a href="#">❤️</a>
-
-<a href="#">⚙️</a>
-
-</nav>
-
-<script type="module" src="js/app.js"></script>
-
+        // قراءة جميع الأنميات من Firestore
+        db.collection('anime').orderBy('title').onSnapshot((snapshot) => {
+            grid.innerHTML = '';
+            if (snapshot.empty) {
+                grid.innerHTML = '<p style="grid-column: span 4; text-align: center;">🚫 لا توجد أنميات حالياً.</p>';
+                return;
+            }
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const id = doc.id;
+                grid.innerHTML += `
+                    <div class="card">
+                        <img src="${data.imageUrl || 'https://via.placeholder.com/200x260/16213e/e94560?text=No+Image'}" alt="${data.title}">
+                        <h3>${data.title}</h3>
+                        <p style="font-size:12px; color:#aaa; padding:0 10px;">${data.description || ''}</p>
+                        <a href="watch.html?id=${id}">▶️ مشاهدة</a>
+                    </div>
+                `;
+            });
+        });
+    </script>
 </body>
-
 </html>
